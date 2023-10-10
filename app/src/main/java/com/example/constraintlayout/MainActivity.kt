@@ -3,44 +3,56 @@ package com.example.constraintlayout
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.View
 import android.widget.EditText
+import android.widget.TextView
+import androidx.core.widget.addTextChangedListener
 import java.util.*
 
-class MainActivity : AppCompatActivity() , TextWatcher, TextToSpeech.OnInitListener {
+class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var tts: TextToSpeech
+    private var conta = 0.0f
+    private var pessoas = 0
+    private var error = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val edtConta = findViewById<EditText>(R.id.edtConta)
-        edtConta.addTextChangedListener(this)
-        // Initialize TTS engine
         tts = TextToSpeech(this, this)
 
+        findViewById<EditText>(R.id.inputConta).addTextChangedListener {
+             updateConta(true, it.toString())
+        }
+        findViewById<EditText>(R.id.inputPessoas).addTextChangedListener {
+            updateConta(false, it.toString())
+        }
+
     }
 
-    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-       Log.d("PDM23","Antes de mudar")
+    private fun updateConta(isConta: Boolean, value: String) {
+        try {
+            if (isConta) {
+                this.conta = value.toFloat()
+            } else {
+                this.pessoas = value.toInt()
+            }
+            this.error = false
+        } catch (ex: Exception) {
+            this.error = true
+        } finally {
+            val preco = this.conta / this.pessoas
+            findViewById<TextView>(R.id.tvConta).text = if(isSomeInputEmpty()) "R$0,00" else "R$.2f".format(preco)
+        }
     }
 
-    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-        Log.d("PDM23","Mudando")
-    }
-
-    override fun afterTextChanged(s: Editable?) {
-        Log.d ("PDM23", "Depois de mudar")
-        Log.d ("PDM23", s.toString())
+    private fun isSomeInputEmpty(): Boolean {
+        return findViewById<EditText>(R.id.inputPessoas).text.isEmpty() ||
+                findViewById<EditText>(R.id.inputConta).text.isEmpty()
     }
 
     fun clickFalar(v: View){
-        
         tts.speak("Oi Sumido", TextToSpeech.QUEUE_FLUSH, null, null)
-
-
     }
     override fun onDestroy() {
             // Release TTS engine resources
