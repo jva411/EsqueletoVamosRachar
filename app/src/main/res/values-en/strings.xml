@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Let\'s Split!</string>
+    <string name="input_hint_conta">Enter the bill amount</string>
+    <string name="input_hint_pessoas">Nº of people</string>
+</resources>
